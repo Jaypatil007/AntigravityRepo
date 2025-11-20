@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY} # Pass API key if needed
+    volumes:
+      - ./backend:/app
+    command: uvicorn agent:agent --host 0.0.0.0 --port 8000 --reload 
+    # Note: The above command assumes we can run the agent with uvicorn directly if it exposes an ASGI app.
+    # If 'adk api_server' is strictly required and doesn't reload easily, use the command from Dockerfile.
+    # For dev, we try to use uvicorn if possible, but let's stick to the Dockerfile CMD for stability if unsure.
+    # command: adk api_server --host 0.0.0.0 --port 8000
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
